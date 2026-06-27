@@ -1,0 +1,33 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  StalinProGym — .gitignore raíz (backend + app Flutter)        ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ─── SECRETOS — NUNCA subir a GitHub ──────────────────────────────
+# (.env, claves de Firebase, configs del cliente)
+**/.env
+**/.env.*
+!**/.env.example
+**/serviceAccountKey.json
+**/google-services.json
+**/GoogleService-Info.plist
+
+# ─── Dependencias ─────────────────────────────────────────────────
+**/node_modules/
+
+# ─── Logs ─────────────────────────────────────────────────────────
+*.log
+backend/server.log
+
+# ─── Flutter / Dart (artefactos de compilación) ───────────────────
+stanleygym_app/.dart_tool/
+stanleygym_app/build/
+stanleygym_app/.flutter-plugins
+stanleygym_app/.flutter-plugins-dependencies
+
+# ─── Configuración local de herramientas ─────────────────────────
+**/.claude/
+**/.vscode/
+
+# ─── Sistema operativo ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
