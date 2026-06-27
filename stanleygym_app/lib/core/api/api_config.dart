@@ -1,24 +1,32 @@
 import 'package:flutter/foundation.dart';
 
-/// Configuración base de la API según la plataforma.
+/// Configuración base de la API.
 ///
-/// IMPORTANTE — el emulador Android no usa `localhost`:
-/// - En el emulador Android, `localhost` apunta al propio emulador, NO a tu PC.
-///   Para llegar a tu PC (donde corre el backend) se usa la IP especial 10.0.2.2.
-/// - En Flutter Web (Chrome) sí se usa localhost normal.
+/// Por defecto usa el backend desplegado en Render (producción), así la app
+/// y el panel web funcionan en línea sin necesidad de correr el backend local.
+///
+/// Para desarrollar con el backend LOCAL (más rápido), cambia [_usarLocal] a
+/// true. En el emulador Android, `localhost` no apunta a tu PC; se usa la IP
+/// especial 10.0.2.2.
 class ApiConfig {
   ApiConfig._();
 
+  /// Backend en línea (Render).
+  static const _produccion = 'https://sistemagym-api.onrender.com/api';
+
+  /// Cambia a `true` para usar el backend local (http://localhost:3000).
+  static const _usarLocal = false;
+
   static String get baseUrl {
+    if (!_usarLocal) return _produccion;
+
+    // ─── Desarrollo local ───
     if (kIsWeb) {
-      // Navegador (panel web del personal)
       return 'http://localhost:3000/api';
     }
     if (defaultTargetPlatform == TargetPlatform.android) {
-      // Emulador Android → 10.0.2.2 es el "localhost" de la PC anfitriona
-      return 'http://10.0.2.2:3000/api';
+      return 'http://10.0.2.2:3000/api'; // emulador Android → PC anfitriona
     }
-    // iOS, Windows, etc.
     return 'http://localhost:3000/api';
   }
 }
