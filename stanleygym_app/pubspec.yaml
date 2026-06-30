@@ -53,6 +53,20 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.1
+
+# ─── Íconos de la app (APK, web, iOS) generados desde una sola imagen ─────────
+# Pon tu logo en assets/icon/logo.png y corre:  dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/icon/logo.png"
+  web:
+    generate: true
+    image_path: "assets/icon/logo.png"
+    background_color: "#ffffff"
+    theme_color: "#2563EB"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
