@@ -10,10 +10,28 @@ const keyPath = join(__dirname, '..', '..', 'serviceAccountKey.json');
 let fcmDisponible = false;
 let messaging = null;
 
-// Inicializa Firebase Admin si la clave de servicio existe.
-if (existsSync(keyPath)) {
+// Obtiene la clave de servicio de Firebase:
+//  1) desde la variable de entorno FIREBASE_SERVICE_ACCOUNT (producción / Render),
+//  2) o desde el archivo serviceAccountKey.json (desarrollo local).
+function obtenerServiceAccount() {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (err) {
+      console.error('⚠️  FIREBASE_SERVICE_ACCOUNT no es un JSON válido:', err.message);
+      return null;
+    }
+  }
+  if (existsSync(keyPath)) {
+    return JSON.parse(readFileSync(keyPath, 'utf8'));
+  }
+  return null;
+}
+
+const serviceAccount = obtenerServiceAccount();
+
+if (serviceAccount) {
   try {
-    const serviceAccount = JSON.parse(readFileSync(keyPath, 'utf8'));
     if (getApps().length === 0) {
       initializeApp({ credential: cert(serviceAccount) });
     }
@@ -24,7 +42,7 @@ if (existsSync(keyPath)) {
     console.error('⚠️  No se pudo inicializar Firebase Admin:', err.message);
   }
 } else {
-  console.warn('⚠️  serviceAccountKey.json no encontrado — push deshabilitado (las notificaciones in-app siguen funcionando).');
+  console.warn('⚠️  Clave de Firebase no encontrada — push deshabilitado (las notificaciones in-app siguen funcionando).');
 }
 
 export { messaging, fcmDisponible };
