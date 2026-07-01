@@ -569,9 +569,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _email = TextEditingController(
-    text: kIsWeb ? 'recepcionista@gmail.com' : 'carlos.rios@gmail.com',
-  );
+  final _email = TextEditingController();
   final _pwd = TextEditingController();
   final _emailFocus = FocusNode();
   final _pwdFocus = FocusNode();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:stanleygym_app/core/api/auth_service.dart';
 import 'package:stanleygym_app/core/api/socio_service.dart';
 import 'package:stanleygym_app/core/auth/session.dart';
@@ -19,6 +20,7 @@ class MiCuentaSocioScreen extends StatefulWidget {
 class _MiCuentaSocioScreenState extends State<MiCuentaSocioScreen> {
   Socio? _perfil;
   bool _notificaciones = true;
+  bool _subiendoFoto = false;
 
   @override
   void initState() {
@@ -34,6 +36,35 @@ class _MiCuentaSocioScreenState extends State<MiCuentaSocioScreen> {
     } catch (_) {
       // si falla, muestra solo los datos de sesión disponibles
     }
+  }
+
+  Future<void> _cambiarFoto() async {
+    final picker = ImagePicker();
+    final XFile? img = await picker.pickImage(
+      source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
+    if (img == null) return;
+    setState(() => _subiendoFoto = true);
+    try {
+      final url = await AuthService.subirFoto(img.path);
+      Session.actual?.fotoUrl = url;
+      if (!mounted) return;
+      setState(() => _subiendoFoto = false);
+      _snack('Foto de perfil actualizada.');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _subiendoFoto = false);
+      _snack(e.toString().replaceFirst('Exception: ', ''), error: true);
+    }
+  }
+
+  void _snack(String msg, {bool error = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg, style: GoogleFonts.plusJakartaSans(fontSize: 13.5, color: Colors.white)),
+      backgroundColor: error ? AppColors.danger : AppColors.success,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      margin: const EdgeInsets.all(16),
+    ));
   }
 
   // ─── Build ────────────────────────────────────────────────────────────────
@@ -120,36 +151,70 @@ class _MiCuentaSocioScreenState extends State<MiCuentaSocioScreen> {
   // ─── Avatar con borde en gradiente ────────────────────────────────────────
 
   Widget _avatar(String iniciales) {
-    return Container(
-      width: 86,
-      height: 86,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.accentBlue, AppColors.primaryDark],
-        ),
-      ),
-      padding: const EdgeInsets.all(3), // aro de gradiente
-      child: Container(
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-        ),
-        padding: const EdgeInsets.all(3), // aro blanco
-        child: Container(
-          decoration: const BoxDecoration(
+    final fotoUrl = Session.actual?.fotoUrl;
+    final tieneFoto = fotoUrl != null && fotoUrl.isNotEmpty;
+
+    return GestureDetector(
+      onTap: _subiendoFoto ? null : _cambiarFoto,
+      child: Stack(children: [
+        Container(
+          width: 86,
+          height: 86,
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.navyDeep,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.accentBlue, AppColors.primaryDark],
+            ),
           ),
-          child: Center(
-            child: Text(iniciales,
-              style: GoogleFonts.bricolageGrotesque(
-                fontSize: 24, fontWeight: FontWeight.w800,
-                color: Colors.white, letterSpacing: -0.5)),
+          padding: const EdgeInsets.all(3), // aro de gradiente
+          child: Container(
+            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+            padding: const EdgeInsets.all(3), // aro blanco
+            child: ClipOval(
+              child: tieneFoto
+                  ? Image.network(fotoUrl, width: 74, height: 74, fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => _inicialesCircle(iniciales))
+                  : _inicialesCircle(iniciales),
+            ),
           ),
         ),
+        // Spinner mientras sube
+        if (_subiendoFoto)
+          Positioned.fill(child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle, color: Colors.black.withValues(alpha: 0.45)),
+            child: const Center(child: SizedBox(width: 22, height: 22,
+              child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))),
+          )),
+        // Botón de cámara
+        if (!_subiendoFoto)
+          Positioned(
+            right: 0, bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(Icons.camera_alt_rounded, size: 14, color: Colors.white),
+            ),
+          ),
+      ]),
+    );
+  }
+
+  Widget _inicialesCircle(String iniciales) {
+    return Container(
+      width: 74, height: 74,
+      decoration: const BoxDecoration(shape: BoxShape.circle, color: AppColors.navyDeep),
+      child: Center(
+        child: Text(iniciales,
+          style: GoogleFonts.bricolageGrotesque(
+            fontSize: 24, fontWeight: FontWeight.w800,
+            color: Colors.white, letterSpacing: -0.5)),
       ),
     );
   }
