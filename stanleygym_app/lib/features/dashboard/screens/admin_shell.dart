@@ -50,7 +50,11 @@ class _AdminShellState extends State<AdminShell> {
         _buildSidebar(),
         Expanded(child: Column(children: [
           _buildTopBar(),
-          Expanded(child: _items[_selected].screen),
+          // IndexedStack mantiene las secciones cargadas → cambio instantáneo.
+          Expanded(child: IndexedStack(
+            index: _selected,
+            children: _items.map((e) => e.screen).toList(),
+          )),
         ])),
       ]),
     );

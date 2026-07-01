@@ -65,7 +65,11 @@ class _MainShellState extends State<MainShell> {
             child: Column(
               children: [
                 _TopBar(title: _items[_selected].label),
-                Expanded(child: _items[_selected].screen),
+                // IndexedStack mantiene las secciones cargadas → cambio instantáneo.
+                Expanded(child: IndexedStack(
+                  index: _selected,
+                  children: _items.map((e) => e.screen).toList(),
+                )),
               ],
             ),
           ),

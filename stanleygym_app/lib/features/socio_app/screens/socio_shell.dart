@@ -83,7 +83,9 @@ class _SocioAppState extends State<_SocioApp> {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: SafeArea(child: screens[_index]),
+      // IndexedStack mantiene las pantallas cargadas: se cargan una vez y al
+      // cambiar de pestaña aparecen al instante (sin volver a mostrar el spinner).
+      body: SafeArea(child: IndexedStack(index: _index, children: screens)),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,

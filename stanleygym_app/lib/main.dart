@@ -99,7 +99,43 @@ class _AppRootState extends State<_AppRoot> {
     if (_cargando) {
       return const Scaffold(
         backgroundColor: Color(0xFFF1F5F9),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF2563EB))),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Marca (mismo logo del login/sidebar)
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(18)),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                  ),
+                  boxShadow: [BoxShadow(
+                    color: Color(0x332563EB), blurRadius: 20, offset: Offset(0, 8))],
+                ),
+                child: SizedBox(
+                  width: 74, height: 74,
+                  child: Icon(Icons.fitness_center, color: Colors.white, size: 36),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text('StalinProGym',
+                style: TextStyle(
+                  fontSize: 21, fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A), letterSpacing: -0.5)),
+              SizedBox(height: 6),
+              Text('Cargando…',
+                style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+              SizedBox(height: 28),
+              SizedBox(
+                width: 24, height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2.5, color: Color(0xFF2563EB)),
+              ),
+            ],
+          ),
+        ),
       );
     }
     final usuario = _usuario;
